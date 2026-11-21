@@ -29,10 +29,12 @@ export function initOrbit() {
   let scrollStart = 0;
   let travel = 1;
   let motionTravel = 1;
+  let lastStoryProgress = 0;
   let lastScroll = window.scrollY;
   let frame = 0;
   let lastTime = 0;
   let measureFrame = 0;
+  let configureFrame = 0;
   let panelAnimation: Animation | undefined;
   let transitionVersion = 0;
   const canObserve = 'IntersectionObserver' in window && 'ResizeObserver' in window;
@@ -82,6 +84,7 @@ export function initOrbit() {
 
   function scrollPosition() {
     // End dwells give the first/last descriptions time to be read.
+    lastStoryProgress = clamp((window.scrollY - scrollStart) / travel);
     const progress = clamp((window.scrollY - scrollStart) / motionTravel);
     return clamp((progress - .08) / .84) * 3;
   }
@@ -102,7 +105,7 @@ export function initOrbit() {
   }
   function render(time: number) {
     frame = 0;
-    if (document.hidden || motionPreference.matches || !inViewport) { lastTime = 0; return; }
+    if (configureFrame || document.hidden || motionPreference.matches || !inViewport) { lastTime = 0; return; }
     if (!manual) target = scrollPosition();
     const dt = lastTime ? Math.min(64, time - lastTime) : 16;
     lastTime = time;
@@ -130,20 +133,77 @@ export function initOrbit() {
   function requestMeasure() {
     if (!measureFrame) measureFrame = requestAnimationFrame(measureGeometry);
   }
+  function fitMobilePanel() {
+    // Reserve the largest actual title/description, including browser font sizing.
+    // Hidden probes have no IDs, controls or animation data attributes.
+    const width = panel!.getBoundingClientRect().width;
+    const probes = nodes.map((node) => {
+      const probe = document.createElement('div');
+      probe.className = 'orbit-selection';
+      probe.setAttribute('aria-hidden', 'true');
+      probe.inert = true;
+      Object.assign(probe.style, { position: 'absolute', visibility: 'hidden', width: `${width}px`, top: '0', left: '0', pointerEvents: 'none' });
+      const heading = document.createElement('h3');
+      const text = document.createElement('p');
+      heading.textContent = node.dataset.title ?? '';
+      text.textContent = node.dataset.description ?? '';
+      probe.append(heading, text);
+      return probe;
+    });
+    section!.append(...probes);
+    const titleHeight = Math.max(...probes.map((probe) => probe.querySelector('h3')!.getBoundingClientRect().height));
+    const textHeight = Math.max(...probes.map((probe) => probe.querySelector('p')!.getBoundingClientRect().height));
+    probes.forEach((probe) => probe.remove());
+    panel!.style.setProperty('--orbit-title-height', `${titleHeight}px`);
+    panel!.style.setProperty('--orbit-description-height', `${textHeight}px`);
+  }
+  function mobileContentSize() {
+    const sceneStyle = getComputedStyle(scene!);
+    const layoutStyle = getComputedStyle(section!.querySelector<HTMLElement>('.orbit-layout')!);
+    const stageStyle = getComputedStyle(stage!);
+    const bottom = section!.querySelector<HTMLElement>('.orbit-bottom')!;
+    const fixed = panel!.getBoundingClientRect().height + bottom.getBoundingClientRect().height
+      + parseFloat(sceneStyle.paddingTop) + parseFloat(sceneStyle.paddingBottom)
+      + parseFloat(layoutStyle.paddingTop) + parseFloat(layoutStyle.paddingBottom)
+      + parseFloat(stageStyle.marginTop) + parseFloat(stageStyle.marginBottom);
+    return { fixed, total: fixed + stage!.getBoundingClientRect().height };
+  }
   function configure() {
+    configureFrame = 0;
     const previousStory = story;
-    const previousProgress = clamp((window.scrollY - scrollStart) / travel);
+    // A viewport resize can change the hero height and native scroll anchoring first.
+    // Preserve the progress actually rendered before that resize, not the shifted scrollY.
+    const previousProgress = previousStory ? lastStoryProgress : clamp((window.scrollY - scrollStart) / travel);
     const preservePosition = previousStory && inViewport && previousProgress > 0 && previousProgress < 1;
     section!.dataset.story = 'false';
     scene!.style.removeProperty('height');
     const compact = window.matchMedia('(max-width: 800px)').matches && canObserve && !motionPreference.matches;
     section!.dataset.compact = String(compact);
+    section!.dataset.density = 'normal';
+    stage?.style.removeProperty('--orbit-stage-size');
     const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
-    const available = window.innerHeight - headerHeight - 8;
+    const viewport = window.visualViewport;
+    const visibleHeight = viewport && viewport.scale === 1 && viewport.height > 0 ? Math.min(window.innerHeight, viewport.height) : window.innerHeight;
+    const available = visibleHeight - headerHeight - 8;
     // The mobile scene uses the small viewport height, stable while browser chrome collapses.
     const bounds = scene!.getBoundingClientRect();
-    const naturalHeight = compact ? scene!.scrollHeight : bounds.height;
-    const sceneSize = compact ? bounds.height : Math.min(available, 840);
+    const sceneSize = compact ? Math.min(bounds.height, available) : Math.min(available, 840);
+    let naturalHeight = bounds.height;
+    if (compact && stage) {
+      scene!.style.height = `${sceneSize}px`;
+      fitMobilePanel();
+      let content = mobileContentSize();
+      if (sceneSize - content.fixed < 176) {
+        section!.dataset.density = 'tight';
+        content = mobileContentSize();
+      }
+      const preferredWidth = Math.min(section!.querySelector<HTMLElement>('.orbit-inner')!.getBoundingClientRect().width + 24, 390);
+      const stageSize = Math.max(160, Math.min(preferredWidth, sceneSize - content.fixed - 8));
+      stage.style.setProperty('--orbit-stage-size', `${stageSize}px`);
+      naturalHeight = mobileContentSize().total;
+    }
+    section!.dataset.fitRequired = naturalHeight.toFixed(1);
+    section!.dataset.fitAvailable = sceneSize.toFixed(1);
     story = canObserve && !motionPreference.matches && sceneSize <= available + 1 && sceneSize + 1 >= naturalHeight && (compact || window.innerHeight >= 700);
     motionTravel = compact ? Math.max(1500, sceneSize * 2.8) : Math.max(1800, window.innerHeight * 2.2);
     // Keep the existing rotation pace; reserve extra scroll only for reading the final procedure.
@@ -154,7 +214,14 @@ export function initOrbit() {
     section!.style.setProperty('--orbit-travel', `${travel}px`);
     section!.style.setProperty('--orbit-scene-size', `${sceneSize}px`);
     if (story) scene!.style.height = `${sceneSize}px`;
-    else section!.dataset.compact = 'false';
+    else {
+      section!.dataset.compact = 'false';
+      section!.dataset.density = 'normal';
+      scene!.style.removeProperty('height');
+      panel!.style.removeProperty('--orbit-title-height');
+      panel!.style.removeProperty('--orbit-description-height');
+    }
+    section!.dataset.fit = story ? 'fits' : motionPreference.matches ? 'reduced-motion' : 'content-too-tall';
     section!.style.setProperty('--orbit-intro-size', `${story && compact ? mobileIntro?.getBoundingClientRect().height ?? 0 : 0}px`);
     section!.dataset.story = String(story);
     section!.dataset.scrollDriver = story ? 'shared' : 'manual';
@@ -222,7 +289,13 @@ export function initOrbit() {
     if (story && !manual && Math.abs(scroll - lastScroll) > 1) schedule();
     lastScroll = scroll;
   }, { passive: true });
-  window.addEventListener('resize', configure, { passive: true });
+  function requestConfigure() {
+    if (!configureFrame) configureFrame = requestAnimationFrame(configure);
+  }
+  window.addEventListener('resize', requestConfigure, { passive: true });
+  window.visualViewport?.addEventListener('resize', () => {
+    if (window.visualViewport?.scale === 1 && !document.querySelector('input:focus, textarea:focus, select:focus')) requestConfigure();
+  }, { passive: true });
   document.addEventListener('visibilitychange', () => { lastTime = 0; updatePlayback(); });
   motionPreference.addEventListener('change', configure);
   window.addEventListener('pagehide', () => { section.dataset.running = 'false'; if (frame) cancelAnimationFrame(frame); frame = 0; lastTime = 0; });
