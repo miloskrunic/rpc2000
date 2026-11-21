@@ -1,0 +1,8 @@
+---
+interface Props { footer?: boolean }
+const { footer = false } = Astro.props;
+---
+<a class:list={['brand', { 'brand-footer': footer }]} href={`${import.meta.env.BASE_URL}#pocetna`}>
+  <span class="brand-name">RPC<span>2000</span><span class="brand-dot">.</span></span>
+  {!footer && <span class="brand-descriptor">OBRADA<br />METALA</span>}
+</a>

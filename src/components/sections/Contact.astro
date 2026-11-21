@@ -1,0 +1,42 @@
+---
+import { company, services } from '../../data/company';
+import ButtonLabel from '../ui/ButtonLabel.astro';
+---
+<section class="contact-section section" id="kontakt" aria-labelledby="contact-title">
+  <div class="container contact-layout">
+    <div class="contact-copy" data-reveal>
+      <p class="eyebrow"><span></span>04 / SLEDEĆI KORAK</p>
+      <h2 id="contact-title">Potreban vam je<br /><span class="accent">deo ili serija?</span></h2>
+      <p class="contact-intro">Opišite deo, materijal i količinu.<br />Ako imate crtež ili uzorak, navedite to u upitu.</p>
+      <div class="contact-details">
+        <div><span>TELEFON · PRIVREMENI PODATAK</span><p>{company.phone}</p></div>
+        <div><span>E-MAIL · PRIVREMENI PODATAK</span><p>{company.email}</p></div>
+        <div><span>LOKACIJA</span><p>{company.location}<small>Industrijska zona</small></p></div>
+      </div>
+    </div>
+    <div class="contact-form-wrap" data-reveal>
+      <div class="form-heading"><h3>Razgovarajmo o vašem poslu.</h3></div>
+      <p class="demo-note" id="demo-note"><span class="status-dot"></span>Probna forma. Slanje upita još nije aktivno.</p>
+      <form data-inquiry-form aria-describedby="demo-note">
+        <div class="form-two-col">
+          <div class="field"><label for="name">Ime i prezime <span>*</span></label><input id="name" name="name" autocomplete="name" placeholder="Vaše ime i prezime" maxlength="100" required /></div>
+          <div class="field"><label for="email">E-mail <span>*</span></label><input id="email" name="email" type="email" autocomplete="email" placeholder="vas@email.rs" maxlength="180" required /></div>
+        </div>
+        <div class="field"><label for="company">Firma <span class="optional">(opciono)</span></label><input id="company" name="company" autocomplete="organization" placeholder="Naziv vaše firme" maxlength="150" /></div>
+        <div class="field"><label for="service">Šta vam je potrebno?</label><div class="select-wrap"><select id="service" name="service"><option value="">Izaberite uslugu</option>{services.map((service) => <option value={service.id}>{service.title}</option>)}<option value="vise-usluga">Više usluga / drugi zahtev</option></select><span aria-hidden="true">⌄</span></div></div>
+        <div class="field"><label for="message">Opišite svoj zahtev <span>*</span></label><textarea id="message" name="message" rows="3" placeholder="Šta želite da izradimo ili obradimo? Navedite materijal i količinu, ako ih znate." maxlength="4000" required></textarea></div>
+        <button class="button button-primary form-submit" type="submit" data-inquiry-submit disabled><ButtonLabel text="Pregledajte upit" /></button>
+        <noscript><p class="form-privacy">Uključite JavaScript za lokalni pregled upita. Slanje nije aktivno.</p></noscript>
+        <p class="form-privacy">Podaci ostaju u ovom prozoru i ne šalju se.</p>
+      </form>
+    </div>
+  </div>
+  <dialog class="inquiry-dialog" aria-labelledby="inquiry-title" data-inquiry-dialog>
+    <div class="dialog-header"><span class="eyebrow">RPC2000 / VAŠ UPIT</span><button class="dialog-close" type="button" aria-label="Zatvori pregled" data-close-dialog>×</button></div>
+    <h2 id="inquiry-title">Pregled<br /><span class="accent">vašeg upita.</span></h2>
+    <p class="dialog-note">Ovo je pregled. Upit nije poslat jer slanje još nije aktivno.</p>
+    <dl class="inquiry-preview" data-inquiry-preview></dl>
+    <div class="dialog-actions"><button class="button button-primary" type="button" data-copy-inquiry><ButtonLabel text="Kopirajte upit" /></button><button class="text-button" type="button" data-close-dialog>Nazad na izmenu</button></div>
+    <p class="copy-status" role="status" data-copy-status></p>
+  </dialog>
+</section>

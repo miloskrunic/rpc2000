@@ -1,0 +1,22 @@
+---
+import Logo from '../ui/Logo.astro';
+import { navigation } from '../../data/company';
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div><Logo footer /><p>Uslužna obrada metala.<br />Pojedinačni komadi i serije.</p></div>
+      <nav aria-label="Navigacija u podnožju">
+        {navigation.map((link) => <a href={link.href}>{link.label}</a>)}
+        <a href={`${import.meta.env.BASE_URL}#kontakt`}>Kontakt</a>
+      </nav>
+      <a class="back-top" href={`${import.meta.env.BASE_URL}#pocetna`}>Na vrh</a>
+    </div>
+    <div class="footer-wordmark" aria-hidden="true">RPC<span>2000</span><i>.</i></div>
+    <div class="footer-bottom">
+      <span>© {new Date().getFullYear()} RPC2000</span>
+      <span>Valjevo, Srbija</span>
+      <span>Probna verzija · ilustrativne fotografije i privremeni kontakti</span>
+    </div>
+  </div>
+</footer>

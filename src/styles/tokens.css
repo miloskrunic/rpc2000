@@ -1,0 +1,20 @@
+:root {
+  color-scheme: dark;
+  --background: #111315;
+  --surface: #1c2023;
+  --surface-deep: #15181b;
+  --text: #f3f4f2;
+  --muted: #b8bec2;
+  --subtle: #929a9f;
+  --accent: #f28c45;
+  --accent-hover: #ffac70;
+  --border: #343a3e;
+  --paper: #deded6;
+  --ink: #202322;
+  --font-body: 'Manrope Variable', sans-serif;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --container: 1280px;
+  --gutter: clamp(22px, 4.5vw, 76px);
+  --header-height: 88px;
+  --ease: cubic-bezier(.2, .65, .25, 1);
+}

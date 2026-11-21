@@ -1,0 +1,111 @@
+---
+import { services } from '../../data/company';
+import ButtonLabel from '../ui/ButtonLabel.astro';
+import '../../styles/orbit.css';
+
+const labels = ['Struganje', 'Glodanje', 'Ivice', 'Prese'];
+const descriptions = [
+  'Obrada na strugu za pojedinačne delove i serije. Oblik, materijal i količinu dogovaramo prema vašem zahtevu.',
+  'Obrada površina i oblika na glodalici. Opis dela ili tehnička dokumentacija služe nam da razmotrimo mogućnosti izrade.',
+  'Obaranje ivica metalnih delova, kao zasebna usluga ili u sklopu obrade. Obim završne obrade dogovaramo za svaki deo.',
+  'Oblikovanje na dve prese uz industrijsko indukciono zagrevanje. Mogućnosti obrade razmatramo prema zahtevu.',
+];
+const ticks = Array.from({ length: 80 }, (_, index) => {
+  const angle = (index * Math.PI * 2) / 80;
+  const radius = index % 5 === 0 ? 259 : 264;
+  return {
+    x1: (300 + Math.sin(angle) * radius).toFixed(2),
+    y1: (300 - Math.cos(angle) * radius).toFixed(2),
+    x2: (300 + Math.sin(angle) * 270).toFixed(2),
+    y2: (300 - Math.cos(angle) * 270).toFixed(2),
+    major: index % 5 === 0,
+  };
+});
+// Two compound paths preserve the 80 marks without 80 separate SVG layout nodes.
+const tickPath = (major: boolean) => ticks.filter((tick) => tick.major === major)
+  .map((tick) => `M${tick.x1} ${tick.y1}L${tick.x2} ${tick.y2}`).join('');
+---
+<section class="orbit-section" id="mogucnosti" aria-label="Postupci obrade metala" data-orbit>
+  <div class="container orbit-mobile-intro">
+    <p class="eyebrow"><span></span>POSTUPCI OBRADE</p>
+    <h2>Obrada prema<br /><span class="accent">vašem zahtevu.</span></h2>
+  </div>
+  <div class="orbit-scene" data-orbit-scene>
+  <div class="orbit-depth" aria-hidden="true">
+    <div class="orbit-depth-grid" data-orbit-depth-grid></div>
+    <div class="orbit-depth-light" data-orbit-depth-light></div>
+    <svg class="orbit-depth-lines" viewBox="0 0 1440 900" fill="none" preserveAspectRatio="xMidYMid slice">
+      <path d="M640-140C1260 20 310 680 1170 1050M940-120C1500 130 700 720 1530 960" stroke="currentColor" stroke-width=".7" />
+      <path d="M120 270h120M180 210v120M1240 650h80M1280 610v80" stroke="currentColor" stroke-width=".7" />
+    </svg>
+  </div>
+  <div class="container orbit-inner">
+    <div class="orbit-topline"><p class="eyebrow"><span></span>POSTUPCI OBRADE</p></div>
+    <div class="orbit-layout">
+      <div class="orbit-copy">
+        <h2 id="orbit-title">Obrada prema<br /><span class="accent">vašem zahtevu.</span></h2>
+      </div>
+      <div class="orbit-stage" data-orbit-stage>
+        <div class="orbit-art" aria-hidden="true">
+          <div class="orbit-ground"></div>
+          <svg class="orbit-body" viewBox="0 0 600 600" fill="none">
+            <defs>
+              <radialGradient id="orbit-metal" cx="300" cy="300" r="210" gradientUnits="userSpaceOnUse">
+                <stop offset=".65" stop-color="#080b0e" /><stop offset=".686" stop-color="#c0c8ce" />
+                <stop offset=".694" stop-color="#171e24" /><stop offset=".71" stop-color="#76838f" />
+                <stop offset=".73" stop-color="#343e47" /><stop offset=".76" stop-color="#87949f" />
+                <stop offset=".785" stop-color="#252e36" /><stop offset=".825" stop-color="#515e69" />
+                <stop offset=".85" stop-color="#29343e" /><stop offset=".89" stop-color="#7d8992" />
+                <stop offset=".915" stop-color="#3d4953" /><stop offset=".955" stop-color="#b7c0c6" />
+                <stop offset=".97" stop-color="#dce2e4" /><stop offset=".978" stop-color="#555f67" />
+                <stop offset=".99" stop-color="#1f282f" /><stop offset="1" stop-color="#7e8a93" />
+              </radialGradient>
+              <linearGradient id="orbit-light" x1="110" y1="100" x2="480" y2="510" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f5f8f8" stop-opacity=".8" /><stop offset=".32" stop-color="#e4e9ed" stop-opacity=".15" />
+                <stop offset=".55" stop-color="#030608" stop-opacity=".7" /><stop offset=".8" stop-color="#e5ebed" stop-opacity=".15" /><stop offset="1" stop-color="#070a0d" stop-opacity=".8" />
+              </linearGradient>
+              <linearGradient id="orbit-depth" x1="300" y1="100" x2="300" y2="524" gradientUnits="userSpaceOnUse"><stop stop-color="#151e25" /><stop offset=".65" stop-color="#10181f" /><stop offset="1" stop-color="#3b464e" /></linearGradient>
+            </defs>
+            <circle cx="300" cy="300" r="283" stroke="#d5e0e7" stroke-opacity=".09" />
+            <circle cx="300" cy="300" r="232" stroke="#d5e0e7" stroke-opacity=".12" stroke-dasharray="2 7" />
+            <path d="M300 114a206 206 0 1 0 0 412a206 206 0 1 0 0-412M300 172a148 148 0 1 1 0 296a148 148 0 1 1 0-296" fill="url(#orbit-depth)" fill-rule="evenodd" />
+            <path d="M300 94a206 206 0 1 0 0 412a206 206 0 1 0 0-412M300 152a148 148 0 1 1 0 296a148 148 0 1 1 0-296" fill="url(#orbit-metal)" fill-rule="evenodd" />
+            <path d="M300 94a206 206 0 1 0 0 412a206 206 0 1 0 0-412M300 152a148 148 0 1 1 0 296a148 148 0 1 1 0-296" fill="url(#orbit-light)" fill-rule="evenodd" />
+            {[154, 159, 165, 173, 182, 190, 198, 203].map((radius, index) => <circle cx="300" cy="300" r={radius} stroke={index % 2 ? '#e6edf2' : '#080b0d'} stroke-opacity={index % 2 ? '.12' : '.25'} stroke-width=".7" />)}
+            <circle cx="300" cy="300" r="139" stroke="#aab7c0" stroke-opacity=".14" />
+            <path d="M300 170v20M300 410v20M170 300h20M410 300h20" stroke="#bac5cd" stroke-opacity=".35" />
+          </svg>
+          <div class="orbit-rotor" data-orbit-rotor>
+            <svg viewBox="0 0 600 600" fill="none">
+              <path d={tickPath(false)} stroke="#596a77" stroke-width=".7" stroke-opacity=".35" />
+              <path d={tickPath(true)} stroke="#9aabb7" stroke-width="1" stroke-opacity=".6" />
+              <path d="M88 185a241 241 0 0 1 147-124" stroke="#f28c45" stroke-width="1.4" />
+              <circle cx="235" cy="61" r="3.2" fill="#f28c45" />
+              <circle cx="365" cy="539" r="2" fill="#83939f" />
+            </svg>
+          </div>
+          <div class="orbit-focus" data-orbit-focus><svg viewBox="0 0 600 600" fill="none"><path d="M217 101a216 216 0 0 1 166 0" stroke="#f28c45" stroke-width="3" stroke-linecap="round" /><path d="M300 76v10" stroke="#f28c45" stroke-width="2" /></svg></div>
+          <div class="orbit-core"><span>RPC<span>2000</span></span><p>OBRADA METALA<br />VALJEVO</p></div>
+        </div>
+        <div class="orbit-nodes" role="group" aria-label="Izaberite postupak obrade">
+          {services.map((service, index) => (
+            <button type="button" class:list={['orbit-node', `orbit-node-${index}`, { 'is-selected': index === 0 }]} disabled aria-pressed={index === 0 ? 'true' : 'false'} aria-controls="orbit-selection" data-orbit-node data-index={index} data-title={service.title} data-description={descriptions[index]} data-service={service.id}>
+              <span class="orbit-node-number">{service.number}<i aria-hidden="true"></i></span><span>{labels[index]}</span>
+            </button>
+          ))}
+        </div>
+        <span class="orbit-stage-note">POJEDINAČNO / SERIJSKI</span>
+      </div>
+      <div class="orbit-details">
+        <div class="orbit-selection" id="orbit-selection" data-orbit-panel>
+          <span class="orbit-index"><span data-orbit-index>01</span><span>/</span>POSTUPAK OBRADE</span>
+          <h3 data-orbit-title>{services[0].title}</h3>
+          <p data-orbit-description>{descriptions[0]}</p>
+          <a class="button button-secondary orbit-link" href="#usluga-struganje" data-orbit-link><ButtonLabel text="Detaljnije o postupku" /></a>
+        </div>
+      </div>
+    </div>
+    <div class="orbit-bottom"><p>Pojedinačni komadi i serije</p><span data-orbit-cue>IZABERITE POSTUPAK</span></div>
+  </div>
+  </div>
+</section>

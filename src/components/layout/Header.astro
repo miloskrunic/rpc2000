@@ -1,0 +1,30 @@
+---
+import Logo from '../ui/Logo.astro';
+import ButtonLabel from '../ui/ButtonLabel.astro';
+import { navigation } from '../../data/company';
+---
+<header class="site-header" data-header>
+  <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+  <div class="container header-inner">
+    <Logo />
+    <nav class="desktop-nav" aria-label="Glavna navigacija">
+      {navigation.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+    <a class="button button-secondary header-contact" href={`${import.meta.env.BASE_URL}#kontakt`}><ButtonLabel text="Razgovarajmo" /></a>
+    <button class="menu-toggle" type="button" aria-label="Otvori meni" aria-controls="mobile-nav" aria-expanded="false" data-menu-toggle>
+      <span></span><span></span>
+    </button>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobilna navigacija" hidden>
+    {navigation.map((link, index) => <a href={link.href}><span>0{index + 1}</span>{link.label}</a>)}
+    <a href={`${import.meta.env.BASE_URL}#kontakt`}><span>04</span>Kontakt</a>
+    <p>RPC2000 / Valjevo, Srbija</p>
+  </nav>
+  <noscript>
+    <nav class="no-js-nav" aria-label="Navigacija bez JavaScript-a">
+      {navigation.map((link) => <a href={link.href}>{link.label}</a>)}
+      <a href={`${import.meta.env.BASE_URL}#kontakt`}>Kontakt</a>
+    </nav>
+    <style is:inline>.menu-toggle { display: none; } @media (max-width: 800px) { .site-header { height: auto; position: relative; } .header-inner { min-height: var(--header-height); } }</style>
+  </noscript>
+</header>

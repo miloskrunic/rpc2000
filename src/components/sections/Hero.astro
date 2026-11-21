@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+import ButtonLabel from '../ui/ButtonLabel.astro';
+import hero from '../../assets/images/hero-lathe.png';
+---
+<section class="hero" id="pocetna" aria-labelledby="hero-title">
+  <div class="hero-image">
+    <div class="hero-media-frame" data-hero-media>
+    <Image src={hero} alt="Ilustrativni prikaz detalja obrade čeličnog komada na strugu" widths={[640, 960, 1280, 1536]} sizes="(max-width: 600px) 140vw, (max-width: 800px) 100vw, 85vw" width={1536} height={1024} format="webp" loading="eager" fetchpriority="high" quality={85} />
+    </div>
+  </div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="container hero-inner">
+    <div class="hero-eyebrow" data-intro="eyebrow"><span class="status-dot"></span> OBRADA METALA <span class="eyebrow-divider">/</span> VALJEVO, SRBIJA</div>
+    <div class="hero-content">
+      <h1 id="hero-title"><span class="hero-line"><span data-intro-line>Ozbiljan pristup</span></span><span class="hero-line accent"><span data-intro-line>svakom komadu.</span></span></h1>
+      <p data-intro="description">Od pojedinačne izrade do serijske obrade.<br class="desktop-break" /> Struganje, glodanje, obaranje ivica i oblikovanje na presama.</p>
+      <div class="hero-actions" data-intro="actions">
+        <a class="button button-primary" href="#kontakt"><ButtonLabel text="Pošaljite upit" /></a>
+        <a class="button button-secondary" href="#usluge"><ButtonLabel text="Istražite usluge" /></a>
+      </div>
+    </div>
+    <div class="hero-bottom" data-intro="bottom">
+      <a class="scroll-cue" href="#usluge"><span class="scroll-line"></span> UPOZNAJTE RPC2000</a>
+      <span class="image-caption">01 / ILUSTRACIJA OBRADE METALA</span>
+    </div>
+  </div>
+  <span class="hero-side-note" aria-hidden="true">RPC2000 / OBRADA METALA</span>
+</section>

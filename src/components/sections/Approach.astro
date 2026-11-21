@@ -1,0 +1,20 @@
+---
+const principles = [
+  { number: '01', title: 'Zahtev pre obrade', text: 'Oblik, materijal, količina i namena dela polazne su tačke za razgovor. Na osnovu njih razmatramo potrebne postupke i mogućnosti izrade.' },
+  { number: '02', title: 'Industrijsko iskustvo', text: 'Iskustvo u radu za namensku industriju oblikuje naš pristup svakom poslu. Od pojedinačne operacije do završne obrade dela.' },
+  { number: '03', title: 'Komad ili serija', text: 'Prihvatamo zahteve za pojedinačne komade i serijsku obradu. Obim posla i postupke dogovaramo prema konkretnom delu.' },
+];
+---
+<section class="approach-section section" id="pristup" aria-labelledby="approach-title">
+  <div class="container">
+    <p class="eyebrow" data-reveal><span></span>02 / NAŠ PRISTUP</p>
+    <div class="approach-heading" data-reveal>
+      <h2 id="approach-title">Rad počinje<br /><em>jasnim dogovorom.</em></h2>
+      <div class="precision-mark" aria-hidden="true"><span></span><span></span><span></span><i>RPC</i><b>+</b></div>
+    </div>
+    <div class="principles">
+      {principles.map((principle, index) => <article class="principle" data-reveal data-reveal-delay={index * 80}><span class="principle-number">/{principle.number}</span><h3>{principle.title}</h3><p>{principle.text}</p></article>)}
+    </div>
+    <div class="approach-note">POJEDINAČNA I SERIJSKA OBRADA<span>RPC2000 / VALJEVO</span></div>
+  </div>
+</section>

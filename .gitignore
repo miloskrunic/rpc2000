@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.astro/
+.sites-runtime/
+.env
+.env.*
+!.env.example
+tmp/
+
+# Local planning, research, QA and reusable skill material are not public site source.
+/docs/
+/MD-ovi/
+/skills/
+/AGENTS.md
+/scripts/sync-website-skill.mjs
+/scripts/validate-website-workflow.mjs
+.codex/
+.agents/
+.aws/
+.DS_Store
+Thumbs.db

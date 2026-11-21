@@ -1,0 +1,20 @@
+---
+import '../../styles/marquee.css';
+const messages = [
+  'Pojedinačna izrada',
+  'Serijska obrada',
+  '2.500 m² proizvodnog prostora',
+  'Valjevo, Srbija',
+];
+---
+<section class="service-marquee" aria-label="RPC2000 ukratko" data-marquee>
+  <div class="marquee-window">
+    <div class="marquee-track">
+      {[0, 1].map((copy) => (
+        <ul class="marquee-group" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {messages.map((message) => <li><span>{message}</span><svg class="marquee-separator" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /><path d="M12 0v6M12 18v6M0 12h6M18 12h6" /></svg></li>)}
+        </ul>
+      ))}
+    </div>
+  </div>
+</section>

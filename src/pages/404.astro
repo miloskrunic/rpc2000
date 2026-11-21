@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ButtonLabel from '../components/ui/ButtonLabel.astro';
+---
+<BaseLayout title="Stranica nije pronađena. RPC2000" description="Tražena stranica ne postoji. Vratite se na početnu stranicu RPC2000 i pogledajte usluge obrade metala u Valjevu." noindex>
+  <section class="not-found container"><p class="eyebrow"><span></span>GREŠKA 404</p><h1>Stranica nije<br /><span class="accent">pronađena.</span></h1><p>Stranica koju tražite ne postoji. Vratite se na početnu i pronađite ono što vam je potrebno.</p><a class="button button-primary" href={import.meta.env.BASE_URL}><ButtonLabel text="Nazad na početnu" /></a></section>
+</BaseLayout>

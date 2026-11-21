@@ -1,0 +1,32 @@
+---
+import { Image } from 'astro:assets';
+import ButtonLabel from '../ui/ButtonLabel.astro';
+import workshop from '../../assets/images/workshop-detail.jpg';
+const equipment = [
+  { title: 'Strug', label: 'STRUGARSKA OBRADA' },
+  { title: 'Glodalica', label: 'GLODAČKA OBRADA' },
+  { title: 'Dve prese', label: 'OBLIKOVANJE METALA' },
+  { title: 'Indukciono zagrevanje', label: 'INDUSTRIJSKA OPREMA' },
+];
+---
+<section class="section facility-section" id="oprema" aria-labelledby="facility-title">
+  <div class="container">
+    <div class="section-heading" data-reveal>
+      <div><p class="eyebrow"><span></span>03 / PROSTOR I OPREMA</p><h2 id="facility-title">Prostor za vaš<br /><span class="muted-heading">sledeći posao.</span></h2></div>
+      <p class="section-intro">Naša baza je u industrijskoj zoni Valjeva.<br />Proizvodni prostor i oprema za različite zahteve obrade metala, na jednom mestu.</p>
+    </div>
+    <div class="facility-layout">
+      <figure class="facility-figure" data-reveal="media">
+        <Image src={workshop} alt="Ilustrativni prikaz detalja mašine u metaloprerađivačkoj radionici" widths={[480, 800, 1200]} sizes="(max-width: 488px) calc(100vw - 44px), (max-width: 600px) 91vw, (max-width: 800px) calc(45.5vw - 15px), (max-width: 1100px) calc(48.08vw - 21.13px), min(643px, calc(48.08vw - 33.81px))" width={1000} height={1050} fit="cover" position="center" format="webp" loading="lazy" />
+        <figcaption><span>MAŠINSKA OBRADA METALA</span><span>Ilustrativna fotografija</span></figcaption>
+      </figure>
+      <div class="facility-info" data-reveal>
+        <div class="area-stat"><span class="eyebrow">PROIZVODNI PROSTOR</span><div>2.500<span>m²</span></div><p>Valjevo · Industrijska zona</p></div>
+        <div class="equipment-list">
+          {equipment.map((item) => <div class="equipment-row"><span class="equipment-square" aria-hidden="true"></span><h3>{item.title}</h3><span>{item.label}</span></div>)}
+        </div>
+        <a class="button button-secondary" href="#kontakt"><ButtonLabel text="Opišite zahtev za obradu" /></a>
+      </div>
+    </div>
+  </div>
+</section>
