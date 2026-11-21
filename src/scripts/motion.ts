@@ -1,3 +1,5 @@
+import { readLayoutViewport } from './viewport';
+
 export const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 export const motionEase = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const activeAnimations = new Set<Animation>();
@@ -123,10 +125,32 @@ export function initScrollPresentation() {
   let maxScroll = 1;
   let heroHeight = 1;
   let heroVisible = true;
+  let heroViewport = { width: 0, height: 0 };
+
+  function syncHeroHeight() {
+    if (!hero) return;
+    if (document.querySelector('input:focus, textarea:focus, select:focus')) return;
+    const viewport = window.visualViewport;
+    if (viewport && Math.abs(viewport.scale - 1) > .01) return;
+    const layout = readLayoutViewport();
+    const resized = Math.abs(layout.width - heroViewport.width) >= 1 || Math.abs(layout.height - heroViewport.height) >= 1;
+    heroViewport = layout;
+    if (layout.width > 800 || layout.height <= 480) {
+      hero.style.removeProperty('height');
+      return;
+    }
+    // Fill the visible first screen at entry. Browser toolbar changes must not
+    // resize content above a visitor reading the rest of the page.
+    if (!resized && window.scrollY > 1) return;
+    const visible = viewport && viewport.height > 0 ? Math.min(window.innerHeight, viewport.height) : window.innerHeight;
+    const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
+    hero.style.height = `${Math.max(1, visible - headerHeight)}px`;
+  }
 
   function render() {
     frame = 0;
     const scroll = Math.max(0, window.scrollY);
+    if (scroll <= 1) syncHeroHeight();
     header?.classList.toggle('is-scrolled', scroll > 24);
     if (progress) progress.style.transform = `scaleX(${Math.min(1, scroll / maxScroll)})`;
     if (media && heroVisible) {
@@ -139,12 +163,14 @@ export function initScrollPresentation() {
   }
   function schedule() { if (!frame) frame = requestAnimationFrame(render); }
   function measure() {
+    syncHeroHeight();
     maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     heroHeight = hero?.offsetHeight ?? 1;
     schedule();
   }
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', measure, { passive: true });
+  window.visualViewport?.addEventListener('resize', measure, { passive: true });
   motionPreference.addEventListener('change', schedule);
   desktop.addEventListener('change', schedule);
   if (hero && 'IntersectionObserver' in window) {

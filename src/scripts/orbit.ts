@@ -1,4 +1,5 @@
 import { animateElement, motionPreference } from './motion';
+import { readLayoutViewport } from './viewport';
 
 export function initOrbit() {
   const section = document.querySelector<HTMLElement>('[data-orbit]');
@@ -29,12 +30,12 @@ export function initOrbit() {
   let scrollStart = 0;
   let travel = 1;
   let motionTravel = 1;
-  let lastStoryProgress = 0;
   let lastScroll = window.scrollY;
   let frame = 0;
   let lastTime = 0;
   let measureFrame = 0;
   let configureFrame = 0;
+  let layoutViewport = { width: 0, height: 0 };
   let panelAnimation: Animation | undefined;
   let transitionVersion = 0;
   const canObserve = 'IntersectionObserver' in window && 'ResizeObserver' in window;
@@ -84,7 +85,6 @@ export function initOrbit() {
 
   function scrollPosition() {
     // End dwells give the first/last descriptions time to be read.
-    lastStoryProgress = clamp((window.scrollY - scrollStart) / travel);
     const progress = clamp((window.scrollY - scrollStart) / motionTravel);
     return clamp((progress - .08) / .84) * 3;
   }
@@ -171,11 +171,9 @@ export function initOrbit() {
   function configure() {
     configureFrame = 0;
     const previousStory = story;
-    // A viewport resize can change the hero height and native scroll anchoring first.
-    // Preserve the progress actually rendered before that resize, not the shifted scrollY.
-    const previousProgress = previousStory ? lastStoryProgress : clamp((window.scrollY - scrollStart) / travel);
-    const preservePosition = previousStory && inViewport && previousProgress > 0 && previousProgress < 1;
-    section!.dataset.story = 'false';
+    layoutViewport = readLayoutViewport();
+    // Keep the existing track height throughout measurement. Temporarily removing
+    // it clamps the document scroll position in WebKit when the visitor is below it.
     scene!.style.removeProperty('height');
     const compact = window.matchMedia('(max-width: 800px)').matches && canObserve && !motionPreference.matches;
     section!.dataset.compact = String(compact);
@@ -184,7 +182,7 @@ export function initOrbit() {
     const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
     const viewport = window.visualViewport;
     const visibleHeight = viewport && viewport.scale === 1 && viewport.height > 0 ? Math.min(window.innerHeight, viewport.height) : window.innerHeight;
-    const available = visibleHeight - headerHeight - 8;
+    const available = Math.min(layoutViewport.height, visibleHeight) - headerHeight - 8;
     // The mobile scene uses the small viewport height, stable while browser chrome collapses.
     const bounds = scene!.getBoundingClientRect();
     const sceneSize = compact ? Math.min(bounds.height, available) : Math.min(available, 840);
@@ -226,11 +224,6 @@ export function initOrbit() {
     section!.dataset.story = String(story);
     section!.dataset.scrollDriver = story ? 'shared' : 'manual';
     measureGeometry();
-    if (preservePosition) {
-      // When the layout falls back, retain the scene in view instead of landing in the next section.
-      window.scrollTo({ top: story ? scrollStart + previousProgress * travel : scrollStart, behavior: 'instant' });
-      lastScroll = window.scrollY;
-    }
     if (!story) {
       if (previousStory && !manual) {
         target = position;
@@ -290,16 +283,26 @@ export function initOrbit() {
     lastScroll = scroll;
   }, { passive: true });
   function requestConfigure() {
+    const viewport = window.visualViewport;
+    if (viewport && Math.abs(viewport.scale - 1) > .01) return;
+    if (document.querySelector('input:focus, textarea:focus, select:focus')) return;
+    const next = readLayoutViewport();
+    if (Math.abs(next.width - layoutViewport.width) < 1 && Math.abs(next.height - layoutViewport.height) < 1) return;
     if (!configureFrame) configureFrame = requestAnimationFrame(configure);
   }
   window.addEventListener('resize', requestConfigure, { passive: true });
-  window.visualViewport?.addEventListener('resize', () => {
-    if (window.visualViewport?.scale === 1 && !document.querySelector('input:focus, textarea:focus, select:focus')) requestConfigure();
-  }, { passive: true });
+  window.visualViewport?.addEventListener('resize', requestConfigure, { passive: true });
   document.addEventListener('visibilitychange', () => { lastTime = 0; updatePlayback(); });
   motionPreference.addEventListener('change', configure);
-  window.addEventListener('pagehide', () => { section.dataset.running = 'false'; if (frame) cancelAnimationFrame(frame); frame = 0; lastTime = 0; });
-  window.addEventListener('pageshow', requestMeasure);
+  window.addEventListener('pagehide', () => {
+    section.dataset.running = 'false';
+    if (frame) cancelAnimationFrame(frame);
+    if (configureFrame) cancelAnimationFrame(configureFrame);
+    if (measureFrame) cancelAnimationFrame(measureFrame);
+    frame = configureFrame = measureFrame = 0;
+    lastTime = 0;
+  });
+  window.addEventListener('pageshow', () => { requestConfigure(); requestMeasure(); });
   if (canObserve) {
     new IntersectionObserver(([entry]) => {
       inViewport = entry?.isIntersecting ?? false;
