@@ -1,7 +1,7 @@
 import { animateElement, motionPreference } from './motion';
 
 export function initServices() {
-  const details = [...document.querySelectorAll<HTMLDetailsElement>('[data-service]')];
+  const details = [...document.querySelectorAll<HTMLDetailsElement>('details[data-service]')];
   if (typeof Element.prototype.animate !== 'function') return;
   const states = new Map<HTMLDetailsElement, { open: boolean; animation?: Animation }>();
 
@@ -13,6 +13,9 @@ export function initServices() {
     state.animation?.cancel();
     state.animation = undefined;
     state.open = open;
+    // Native `open` stays true until a closing height animation finishes.
+    // Keep the highlight, title and icon tied to the requested state instead.
+    detail.dataset.expanded = String(open);
     summary.setAttribute('aria-expanded', String(open));
     if (motionPreference.matches) {
       detail.open = open;
@@ -21,11 +24,13 @@ export function initServices() {
       return;
     }
 
-    // Measure the actual end state; no hard-coded max-height or delayed content popping.
+    // Reveal content only for measurement/opening; do not toggle a closing
+    // details off and on, which restarts its CSS transitions.
     detail.style.height = '';
-    detail.open = open;
-    const endHeight = detail.getBoundingClientRect().height;
     detail.open = true;
+    const style = getComputedStyle(detail);
+    const endHeight = open ? detail.getBoundingClientRect().height
+      : summary.getBoundingClientRect().height + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
     detail.dataset.animating = '';
     detail.style.height = `${startHeight}px`;
     const animation = animateElement(detail, [{ height: `${startHeight}px` }, { height: `${endHeight}px` }], {
@@ -50,6 +55,7 @@ export function initServices() {
 
   details.forEach((detail) => {
     states.set(detail, { open: detail.open });
+    detail.dataset.expanded = String(detail.open);
     const summary = detail.querySelector('summary');
     summary?.setAttribute('aria-expanded', String(detail.open));
     summary?.addEventListener('click', (event) => {

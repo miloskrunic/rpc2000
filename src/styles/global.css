@@ -117,12 +117,12 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline-offs
 .service summary:hover h3 { color: var(--accent); }
 .service-number { font-size: 10px; color: var(--subtle); align-self: center; }
 .service h3 { font-family: var(--font-body); font-size: clamp(23px, 2.25vw, 31px); letter-spacing: -.035em; font-weight: 500; line-height: 1.25; transition: color .3s; }
-.service[open] h3 { color: var(--accent); }
+.service[data-expanded='true'] h3, .service[open]:not([data-expanded]) h3 { color: var(--accent); }
 .service-toggle { position: relative; flex-shrink: 0; width: 28px; height: 28px; margin-left: auto; }
 .service-toggle::before, .service-toggle::after { content: ''; position: absolute; width: 12px; height: 1px; left: 8px; top: 14px; background: currentColor; }
 .service-toggle::after { transform: rotate(90deg); transition: transform .2s; }
-.service[open] .service-toggle { color: var(--accent); }
-.service[open] .service-toggle::after { transform: rotate(0deg); }
+.service[data-expanded='true'] .service-toggle, .service[open]:not([data-expanded]) .service-toggle { color: var(--accent); }
+.service[data-expanded='true'] .service-toggle::after, .service[open]:not([data-expanded]) .service-toggle::after { transform: rotate(0deg); }
 .service-content { padding: 0 0 25px 38px; }
 .service-content > p { color: var(--muted); max-width: 400px; font-size: 14px; line-height: 1.85; }
 .service-inquiry { font-size: 13px; margin-top: 22px; min-height: 46px; padding: 11px 20px; width: fit-content; }

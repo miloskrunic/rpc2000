@@ -24,6 +24,7 @@ export function initOrbit() {
   let pending = 0;
   let position = 0;
   let target = 0;
+  let outro = 0;
   let manual = false;
   let inViewport = false;
   let story = false;
@@ -84,14 +85,19 @@ export function initOrbit() {
   }
 
   function scrollPosition() {
-    // End dwells give the first/last descriptions time to be read.
+    // Chapter selection stops at the final description; decoration can continue.
     const progress = clamp((window.scrollY - scrollStart) / motionTravel);
     return clamp((progress - .08) / .84) * 3;
   }
+  function outroPosition() {
+    const start = motionTravel * .92;
+    return story && !manual ? clamp((window.scrollY - scrollStart - start) / (travel - start)) : 0;
+  }
   function paint() {
     const angle = position * 90;
-    rotor!.style.transform = `rotate(${angle}deg)`;
-    focus!.style.transform = `rotate(${angle}deg)`;
+    // Two shallow finishing arcs signal progress without selecting a fifth chapter.
+    rotor!.style.transform = `rotate(${angle + outro * 36}deg)`;
+    focus!.style.transform = `rotate(${angle + outro * 24}deg)`;
     // Shallow counter-motion creates depth while the reading column remains still.
     if (depthGrid) depthGrid.style.transform = motionPreference.matches ? '' : `translate3d(0, ${-42 + position * 28}px, 0)`;
     if (depthLight) depthLight.style.transform = motionPreference.matches ? '' : `translate3d(${24 - position * 16}px, 0, 0)`;
@@ -107,12 +113,16 @@ export function initOrbit() {
     frame = 0;
     if (configureFrame || document.hidden || motionPreference.matches || !inViewport) { lastTime = 0; return; }
     if (!manual) target = scrollPosition();
+    const outroTarget = outroPosition();
     const dt = lastTime ? Math.min(64, time - lastTime) : 16;
     lastTime = time;
-    position += (target - position) * (1 - Math.exp(-dt / 155));
+    const ease = 1 - Math.exp(-dt / 155);
+    position += (target - position) * ease;
+    outro += (outroTarget - outro) * ease;
     if (Math.abs(target - position) < .0005) position = target;
+    if (Math.abs(outroTarget - outro) < .0005) outro = outroTarget;
     paint();
-    if (position !== target) frame = requestAnimationFrame(render);
+    if (position !== target || outro !== outroTarget) frame = requestAnimationFrame(render);
     else lastTime = 0;
   }
   function schedule() {
@@ -225,6 +235,7 @@ export function initOrbit() {
     section!.dataset.scrollDriver = story ? 'shared' : 'manual';
     measureGeometry();
     if (!story) {
+      outro = 0;
       if (previousStory && !manual) {
         target = position;
         select(Math.round(position), true);
