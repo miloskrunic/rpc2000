@@ -4,15 +4,32 @@ import { initServices } from './services';
 import { initOrbit } from './orbit';
 import { initMarquees } from './marquee';
 
-try {
-  initMotion();
-  initScrollPresentation();
-  initServices();
-  initOrbit();
-  initMarquees();
-} catch {
-  document.querySelectorAll<HTMLElement>('[data-motion-state]').forEach((element) => delete element.dataset.motionState);
+function initEnhancements() {
+  try {
+    initMotion();
+    initScrollPresentation();
+    initServices();
+    initOrbit();
+    initMarquees();
+  } catch {
+    document.querySelectorAll<HTMLElement>('[data-motion-state]').forEach((element) => delete element.dataset.motionState);
+  }
 }
+
+// WebKit can run the module before external stylesheets finish loading.
+// All layout-dependent enhancements must measure the styled document.
+const pendingStyles = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')].filter((link) => !link.sheet);
+if (pendingStyles.length) {
+  void Promise.all(pendingStyles.map((link) => new Promise<void>((resolve) => {
+    function ready() {
+      link.removeEventListener('load', ready);
+      link.removeEventListener('error', ready);
+      resolve();
+    }
+    link.addEventListener('load', ready, { once: true });
+    link.addEventListener('error', ready, { once: true });
+  }))).then(initEnhancements);
+} else initEnhancements();
 
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 const mobileNav = document.querySelector<HTMLElement>('#mobile-nav');
