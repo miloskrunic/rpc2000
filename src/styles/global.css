@@ -376,12 +376,12 @@ figcaption > span:last-child { font-size: 8px; color: #d1d3d3; text-align: right
   .principle p { max-width: 390px; font-size: 13px; }
   .approach-note { margin-top: 36px; padding-top: 20px; font-size: 7px; }
   .approach-note > span:last-child { display: none; }
-  .facility-layout { grid-template-columns: 1fr; gap: 35px; }
+  .facility-layout { grid-template-columns: minmax(0, 1fr); gap: 35px; }
   .facility-figure { min-height: 400px; }
   .facility-figure img { object-position: center 43%; }
   .facility-info { padding-top: 0; }
-  .area-stat > div { font-size: 130px; line-height: 1.1; margin-top: 3px; }
-  .area-stat > div > span { font-size: 35px; margin-left: 9px; }
+  .area-stat > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 9px; font-size: clamp(110px, 36vw, 130px); line-height: 1.1; margin-top: 3px; }
+  .area-stat > div > span { font-size: 35px; margin-left: 0; }
   .area-stat > .eyebrow { font-size: 8px; }
   .equipment-list { margin-top: 30px; }
   .equipment-row { min-height: 64px; flex-wrap: nowrap; }

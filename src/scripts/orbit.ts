@@ -205,20 +205,19 @@ export function initOrbit() {
     const bounds = scene!.getBoundingClientRect();
     const sceneSize = compact ? Math.min(bounds.height, available) : Math.min(available, 840);
     let naturalHeight = bounds.height;
-    let mobileFixed = 0;
-    let preferredWidth = 0;
     if (compact && stage) {
       scene!.style.height = `${sceneSize}px`;
       fitMobilePanel();
+      const preferredWidth = Math.min(section!.querySelector<HTMLElement>('.orbit-inner')!.getBoundingClientRect().width + 24, 390);
       let content = mobileContentSize();
-      if (sceneSize - content.fixed < 176) {
+      // Prefer removing secondary labels before reducing the circle. Fit once
+      // against the stable small viewport; toolbar motion never changes its size.
+      if (sceneSize - content.fixed - 8 < preferredWidth) {
         section!.dataset.density = 'tight';
         content = mobileContentSize();
       }
-      preferredWidth = Math.min(section!.querySelector<HTMLElement>('.orbit-inner')!.getBoundingClientRect().width + 24, 390);
       const stageSize = Math.max(160, Math.min(preferredWidth, sceneSize - content.fixed - 8));
       stage.style.setProperty('--orbit-stage-size', `${stageSize}px`);
-      mobileFixed = content.fixed;
       naturalHeight = mobileContentSize().total;
     }
     section!.dataset.fitRequired = naturalHeight.toFixed(1);
@@ -234,11 +233,10 @@ export function initOrbit() {
     dynamicScene = story && compact && CSS.supports('height', '100dvh');
     trackSceneSize = dynamicScene ? Math.max(sceneSize, layoutViewport.largeHeight - viewportInset) : sceneSize;
     section!.style.setProperty('--orbit-scene-size', `${trackSceneSize}px`);
-    if (dynamicScene && stage) {
-      // Let only the scene and ring consume newly visible space. The enclosing
-      // track remains fixed, so toolbar motion cannot move readers below it.
+    if (dynamicScene) {
+      // Only the containing scene adapts to browser chrome. Circle dimensions
+      // and text reservations stay fixed for this layout.
       scene!.style.height = `calc(100dvh - ${viewportInset}px)`;
-      stage.style.setProperty('--orbit-stage-size', `clamp(160px, calc(100dvh - ${viewportInset + mobileFixed + 8}px), ${preferredWidth}px)`);
     } else if (story) scene!.style.height = `${sceneSize}px`;
     else {
       section!.dataset.compact = 'false';
