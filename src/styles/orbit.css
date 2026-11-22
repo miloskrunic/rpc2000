@@ -112,8 +112,8 @@
   .orbit-section[data-compact='true'] .orbit-scene { height: calc(100svh - var(--header-height) - 8px); padding-block: 12px; }
   .orbit-section[data-compact='true'] .orbit-topline,
   .orbit-section[data-compact='true'] .orbit-copy { display: none; }
-  .orbit-section[data-compact='true'] .orbit-layout { padding: clamp(0px, calc(10svh - 70px), 16px) 0 0; justify-content: flex-start; flex-shrink: 0; }
-  .orbit-section[data-compact='true'] .orbit-stage { width: min(calc(100% + 24px), var(--orbit-stage-size, clamp(176px, calc(100svh - 420px), 390px))); max-width: none; align-self: center; margin: 0 0 12px; flex-shrink: 0; }
+  .orbit-section[data-compact='true'] .orbit-layout { row-gap: clamp(20px, 3svh, 28px); padding: clamp(0px, calc(10svh - 70px), 16px) 0 0; justify-content: space-evenly; flex-shrink: 0; }
+  .orbit-section[data-compact='true'] .orbit-stage { width: min(calc(100% + 24px), var(--orbit-stage-size, clamp(176px, calc(100svh - 420px), 390px))); max-width: none; align-self: center; margin: 0; flex-shrink: 0; }
   .orbit-section[data-compact='true'] .orbit-core > span { font-size: clamp(25px, 4svh, 34px); }
   .orbit-section[data-compact='true'] .orbit-core p { font-size: 7px; margin-top: 8px; }
   .orbit-section[data-compact='true'] .orbit-node { min-width: 72px; min-height: 44px; gap: 4px; padding: 6px 8px; border-radius: 12px; }
@@ -121,29 +121,25 @@
   .orbit-section[data-compact='true'] .orbit-selection { min-height: 0; padding: 8px 4px 12px; }
   .orbit-section[data-compact='true'] .orbit-index { font-size: 10px; line-height: 1.4; }
   .orbit-section[data-compact='true'] .orbit-index > span:first-child { font-size: 12px; }
-  .orbit-section[data-compact='true'] .orbit-selection h3 { font-size: clamp(30px, 6vw, 36px); margin-top: 10px; min-height: max(2.16em, var(--orbit-title-height, 0px)); }
-  .orbit-section[data-compact='true'] .orbit-selection > p { font-size: 14px; line-height: 1.65; margin-top: 8px; min-height: max(6.6em, var(--orbit-description-height, 0px)); max-width: none; }
+  .orbit-section[data-compact='true'] .orbit-selection h3 { font-size: clamp(30px, 6vw, 36px); margin-top: 10px; min-height: var(--orbit-title-height, 1.08em); }
+  .orbit-section[data-compact='true'] .orbit-selection > p { font-size: 14px; line-height: 1.65; margin-top: 8px; min-height: var(--orbit-description-height, 0px); max-width: none; }
   .orbit-section[data-compact='true'] .orbit-selection .orbit-link { min-height: 44px; margin-top: 12px; padding: 10px 18px; }
   .orbit-section[data-compact='true'] .orbit-bottom { min-height: 24px; padding-top: 8px; flex-shrink: 0; }
   .orbit-section[data-compact='true'] .orbit-bottom > p { font-size: 10px; }
   .orbit-section[data-compact='true'] .orbit-bottom > span { font-size: 8px; }
 }
-@media (max-width: 360px) {
-  .orbit-section[data-compact='true'] .orbit-selection > p { min-height: max(8.25em, var(--orbit-description-height, 0px)); }
-}
 @media (max-width: 800px) {
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-scene { padding-block: 10px 6px; }
-  .orbit-section[data-compact='true'][data-density='tight'] .orbit-layout { padding-top: 0; }
+  .orbit-section[data-compact='true'][data-density='tight'] .orbit-layout { padding-top: 0; row-gap: 12px; }
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-index,
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-bottom { display: none; }
-  .orbit-section[data-compact='true'][data-density='tight'] .orbit-stage { margin-bottom: 8px; }
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-selection { padding-block: 4px; }
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-selection h3 { margin-top: 0; }
   .orbit-section[data-compact='true'][data-density='tight'] .orbit-selection .orbit-link { margin-top: 10px; }
 }
 @media (max-width: 800px) and (max-height: 650px) {
   .orbit-section[data-compact='true'] .orbit-scene { padding-block: 10px 6px; }
-  .orbit-section[data-compact='true'] .orbit-stage { margin-bottom: 8px; }
+  .orbit-section[data-compact='true'] .orbit-layout { row-gap: 12px; }
   .orbit-section[data-compact='true'] .orbit-index,
   .orbit-section[data-compact='true'] .orbit-bottom { display: none; }
   .orbit-section[data-compact='true'] .orbit-selection { padding-block: 4px; }

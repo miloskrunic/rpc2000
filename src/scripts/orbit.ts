@@ -36,7 +36,10 @@ export function initOrbit() {
   let lastTime = 0;
   let measureFrame = 0;
   let configureFrame = 0;
-  let layoutViewport = { width: 0, height: 0 };
+  let layoutViewport = { width: 0, height: 0, largeHeight: 0 };
+  let dynamicScene = false;
+  let trackSceneSize = 1;
+  let viewportInset = 0;
   let panelAnimation: Animation | undefined;
   let transitionVersion = 0;
   const canObserve = 'IntersectionObserver' in window && 'ResizeObserver' in window;
@@ -91,7 +94,9 @@ export function initOrbit() {
   }
   function outroPosition() {
     const start = motionTravel * .92;
-    return story && !manual ? clamp((window.scrollY - scrollStart - start) / (travel - start)) : 0;
+    const visibleScene = dynamicScene ? Math.min(trackSceneSize, Math.max(1, window.innerHeight - viewportInset)) : trackSceneSize;
+    const extraTravel = Math.max(0, trackSceneSize - visibleScene);
+    return story && !manual ? clamp((window.scrollY - scrollStart - start) / (travel + extraTravel - start)) : 0;
   }
   function paint() {
     const angle = position * 90;
@@ -157,6 +162,7 @@ export function initOrbit() {
       const text = document.createElement('p');
       heading.textContent = node.dataset.title ?? '';
       text.textContent = node.dataset.description ?? '';
+      heading.style.minHeight = text.style.minHeight = '0';
       probe.append(heading, text);
       return probe;
     });
@@ -175,6 +181,7 @@ export function initOrbit() {
     const fixed = panel!.getBoundingClientRect().height + bottom.getBoundingClientRect().height
       + parseFloat(sceneStyle.paddingTop) + parseFloat(sceneStyle.paddingBottom)
       + parseFloat(layoutStyle.paddingTop) + parseFloat(layoutStyle.paddingBottom)
+      + (parseFloat(layoutStyle.rowGap) || 0)
       + parseFloat(stageStyle.marginTop) + parseFloat(stageStyle.marginBottom);
     return { fixed, total: fixed + stage!.getBoundingClientRect().height };
   }
@@ -190,6 +197,7 @@ export function initOrbit() {
     section!.dataset.density = 'normal';
     stage?.style.removeProperty('--orbit-stage-size');
     const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
+    viewportInset = headerHeight + 8;
     const viewport = window.visualViewport;
     const visibleHeight = viewport && viewport.scale === 1 && viewport.height > 0 ? Math.min(window.innerHeight, viewport.height) : window.innerHeight;
     const available = Math.min(layoutViewport.height, visibleHeight) - headerHeight - 8;
@@ -197,6 +205,8 @@ export function initOrbit() {
     const bounds = scene!.getBoundingClientRect();
     const sceneSize = compact ? Math.min(bounds.height, available) : Math.min(available, 840);
     let naturalHeight = bounds.height;
+    let mobileFixed = 0;
+    let preferredWidth = 0;
     if (compact && stage) {
       scene!.style.height = `${sceneSize}px`;
       fitMobilePanel();
@@ -205,9 +215,10 @@ export function initOrbit() {
         section!.dataset.density = 'tight';
         content = mobileContentSize();
       }
-      const preferredWidth = Math.min(section!.querySelector<HTMLElement>('.orbit-inner')!.getBoundingClientRect().width + 24, 390);
+      preferredWidth = Math.min(section!.querySelector<HTMLElement>('.orbit-inner')!.getBoundingClientRect().width + 24, 390);
       const stageSize = Math.max(160, Math.min(preferredWidth, sceneSize - content.fixed - 8));
       stage.style.setProperty('--orbit-stage-size', `${stageSize}px`);
+      mobileFixed = content.fixed;
       naturalHeight = mobileContentSize().total;
     }
     section!.dataset.fitRequired = naturalHeight.toFixed(1);
@@ -220,8 +231,15 @@ export function initOrbit() {
     section!.style.setProperty('--orbit-motion-travel', `${motionTravel}px`);
     section!.style.setProperty('--orbit-final-hold', `${finalHold}px`);
     section!.style.setProperty('--orbit-travel', `${travel}px`);
-    section!.style.setProperty('--orbit-scene-size', `${sceneSize}px`);
-    if (story) scene!.style.height = `${sceneSize}px`;
+    dynamicScene = story && compact && CSS.supports('height', '100dvh');
+    trackSceneSize = dynamicScene ? Math.max(sceneSize, layoutViewport.largeHeight - viewportInset) : sceneSize;
+    section!.style.setProperty('--orbit-scene-size', `${trackSceneSize}px`);
+    if (dynamicScene && stage) {
+      // Let only the scene and ring consume newly visible space. The enclosing
+      // track remains fixed, so toolbar motion cannot move readers below it.
+      scene!.style.height = `calc(100dvh - ${viewportInset}px)`;
+      stage.style.setProperty('--orbit-stage-size', `clamp(160px, calc(100dvh - ${viewportInset + mobileFixed + 8}px), ${preferredWidth}px)`);
+    } else if (story) scene!.style.height = `${sceneSize}px`;
     else {
       section!.dataset.compact = 'false';
       section!.dataset.density = 'normal';
@@ -298,7 +316,7 @@ export function initOrbit() {
     if (viewport && Math.abs(viewport.scale - 1) > .01) return;
     if (document.querySelector('input:focus, textarea:focus, select:focus')) return;
     const next = readLayoutViewport();
-    if (Math.abs(next.width - layoutViewport.width) < 1 && Math.abs(next.height - layoutViewport.height) < 1) return;
+    if (Math.abs(next.width - layoutViewport.width) < 1 && Math.abs(next.height - layoutViewport.height) < 1 && Math.abs(next.largeHeight - layoutViewport.largeHeight) < 1) { schedule(); return; }
     if (!configureFrame) configureFrame = requestAnimationFrame(configure);
   }
   window.addEventListener('resize', requestConfigure, { passive: true });
