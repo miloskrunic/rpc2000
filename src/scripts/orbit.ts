@@ -5,6 +5,8 @@ export function initOrbit() {
   const section = document.querySelector<HTMLElement>('[data-orbit]');
   if (!section) return;
   const scene = section.querySelector<HTMLElement>('[data-orbit-scene]');
+  const layout = section.querySelector<HTMLElement>('.orbit-layout');
+  const bottom = section.querySelector<HTMLElement>('.orbit-bottom');
   const mobileIntro = section.querySelector<HTMLElement>('.orbit-mobile-intro');
   const stage = section.querySelector<HTMLElement>('[data-orbit-stage]');
   const depthGrid = section.querySelector<HTMLElement>('[data-orbit-depth-grid]');
@@ -18,7 +20,7 @@ export function initOrbit() {
   const panel = section.querySelector<HTMLElement>('[data-orbit-panel]');
   const link = section.querySelector<HTMLAnchorElement>('[data-orbit-link]');
   const cue = section.querySelector<HTMLElement>('[data-orbit-cue]');
-  if (!scene || !rotor || !nodes.length || !focus || !title || !description || !indexLabel || !panel || !link) return;
+  if (!scene || !layout || !bottom || !rotor || !nodes.length || !focus || !title || !description || !indexLabel || !panel || !link) return;
 
   let selected = 0;
   let pending = 0;
@@ -106,7 +108,7 @@ export function initOrbit() {
     // Shallow counter-motion creates depth while the reading column remains still.
     if (depthGrid) depthGrid.style.transform = motionPreference.matches ? '' : `translate3d(0, ${-42 + position * 28}px, 0)`;
     if (depthLight) depthLight.style.transform = motionPreference.matches ? '' : `translate3d(${24 - position * 16}px, 0, 0)`;
-    if (stage) stage.style.transform = motionPreference.matches ? '' : `translate3d(0, ${(10 - position * 20 / 3) * (section!.dataset.compact === 'true' ? .35 : 1)}px, 0)`;
+    if (stage) stage.style.transform = motionPreference.matches || section!.dataset.compact === 'true' ? '' : `translate3d(0, ${10 - position * 20 / 3}px, 0)`;
     section!.dataset.chapterPosition = position.toFixed(4);
     if (!manual) {
       const next = Math.round(position);
@@ -175,10 +177,9 @@ export function initOrbit() {
   }
   function mobileContentSize() {
     const sceneStyle = getComputedStyle(scene!);
-    const layoutStyle = getComputedStyle(section!.querySelector<HTMLElement>('.orbit-layout')!);
+    const layoutStyle = getComputedStyle(layout!);
     const stageStyle = getComputedStyle(stage!);
-    const bottom = section!.querySelector<HTMLElement>('.orbit-bottom')!;
-    const fixed = panel!.getBoundingClientRect().height + bottom.getBoundingClientRect().height
+    const fixed = panel!.getBoundingClientRect().height + bottom!.getBoundingClientRect().height
       + parseFloat(sceneStyle.paddingTop) + parseFloat(sceneStyle.paddingBottom)
       + parseFloat(layoutStyle.paddingTop) + parseFloat(layoutStyle.paddingBottom)
       + (parseFloat(layoutStyle.rowGap) || 0)
@@ -233,6 +234,13 @@ export function initOrbit() {
     dynamicScene = story && compact && CSS.supports('height', '100dvh');
     trackSceneSize = dynamicScene ? Math.max(sceneSize, layoutViewport.largeHeight - viewportInset) : sceneSize;
     section!.style.setProperty('--orbit-scene-size', `${trackSceneSize}px`);
+    if (story && compact) {
+      const sceneStyle = getComputedStyle(scene!);
+      const layoutSize = sceneSize - parseFloat(sceneStyle.paddingTop) - parseFloat(sceneStyle.paddingBottom) - bottom!.getBoundingClientRect().height;
+      // Keep the reading composition anchored while only background/footer space
+      // adapts to browser chrome. Flex free-space must not move the circle.
+      section!.style.setProperty('--orbit-layout-size', `${layoutSize}px`);
+    } else section!.style.removeProperty('--orbit-layout-size');
     if (dynamicScene) {
       // Only the containing scene adapts to browser chrome. Circle dimensions
       // and text reservations stay fixed for this layout.

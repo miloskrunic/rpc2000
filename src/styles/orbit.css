@@ -113,7 +113,7 @@
   .orbit-section[data-compact='true'] .orbit-scene { height: calc(100svh - var(--header-height) - 8px); padding-block: 12px; }
   .orbit-section[data-compact='true'] .orbit-topline,
   .orbit-section[data-compact='true'] .orbit-copy { display: none; }
-  .orbit-section[data-compact='true'] .orbit-layout { row-gap: clamp(20px, 3svh, 28px); padding: clamp(0px, calc(10svh - 70px), 16px) 0 0; justify-content: space-evenly; flex-shrink: 0; }
+  .orbit-section[data-compact='true'] .orbit-layout { row-gap: clamp(20px, 3svh, 28px); padding: clamp(0px, calc(10svh - 70px), 16px) 0 0; justify-content: space-evenly; flex: 0 0 var(--orbit-layout-size, auto); }
   .orbit-section[data-compact='true'] .orbit-stage { width: min(calc(100% + 24px), var(--orbit-stage-size, clamp(176px, calc(100svh - 420px), 390px))); max-width: none; align-self: center; margin: 0; flex-shrink: 0; }
   .orbit-section[data-compact='true'] .orbit-core > span { font-size: clamp(25px, 4svh, 34px); }
   .orbit-section[data-compact='true'] .orbit-core p { font-size: 7px; margin-top: 8px; }
@@ -125,7 +125,7 @@
   .orbit-section[data-compact='true'] .orbit-selection h3 { font-size: clamp(30px, 6vw, 36px); margin-top: 10px; min-height: var(--orbit-title-height, 1.08em); }
   .orbit-section[data-compact='true'] .orbit-selection > p { font-size: 14px; line-height: 1.65; margin-top: 8px; min-height: var(--orbit-description-height, 0px); max-width: none; }
   .orbit-section[data-compact='true'] .orbit-selection .orbit-link { min-height: 44px; margin-top: 12px; padding: 10px 18px; }
-  .orbit-section[data-compact='true'] .orbit-bottom { min-height: 24px; padding-top: 8px; flex-shrink: 0; }
+  .orbit-section[data-compact='true'] .orbit-bottom { min-height: 24px; padding-top: 8px; margin-top: auto; flex-shrink: 0; }
   .orbit-section[data-compact='true'] .orbit-bottom > p { font-size: 10px; }
   .orbit-section[data-compact='true'] .orbit-bottom > span { font-size: 8px; }
 }
